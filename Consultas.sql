@@ -5,8 +5,40 @@ FROM PESSOA P INNER JOIN MISSAO M
 GROUP BY(P.NOME)
 HAVING MAX(M.VALOR) > 5000
 
--- 
-v
+-- SUBCONSULTA ESCALAR
+SELECT DISTINCT(P.NOME)
+FROM PESSOA P INNER JOIN MISSAO M
+	ON P.CADASTRO = M.CADASTRO
+WHERE M.VALOR > (
+    			    SELECT AVG(M2.VALOR)
+    				FROM MISSAO M2
+				)
+
+-- Missões de classe B que possuem valor maior que alguma missão de classe A, SUBCONSULTA TABELA
+SELECT M.CODIGO
+FROM MISSAO M
+WHERE M.DIFICULDADE = 'B' AND M.VALOR >= ANY (
+    											SELECT M.VALOR
+    											FROM MISSAO M
+    											WHERE M.DIFICULDADE = 'A'
+											)
+
+-- Missões que tiveram pessoas solicitantes, ANTIJOIN
+
+SELECT M.CODIGO 
+FROM MISSAO M
+WHERE M.CODIGO NOT IN (
+						SELECT M2.CODIGO
+    					FROM MISSAO M2
+    					WHERE M2.CADASTRO IS	 NULL
+    					)
+
+-- Missões que não tiveram pessoas solicitantes*/
+SELECT *
+FROM PESSOA P RIGHT JOIN MISSAO M
+	ON P.CADASTRO = M.CADASTRO
+WHERE P.CADASTRO IS NULL
+
 
 
 -- SEMELHANTE AO EXEMPLO
